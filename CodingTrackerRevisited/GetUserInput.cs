@@ -77,11 +77,37 @@ internal class GetUserInput
             return;
         }
 
-        string newDate = GetDateInput();
-        string newDuration = GetDurationInput();
+        bool updating = true;
 
-        coding.Date = newDate;
-        coding.Duration = newDuration;
+        while (updating)
+        {
+            Console.WriteLine("Choose which property you want to update.");
+            Console.WriteLine("Type 'a' for date");
+            Console.WriteLine("Type 'b' for duration");
+            Console.WriteLine("Type 's' to stop updating");
+            Console.WriteLine("Type '0' to go to the Main Menu");
+            string cmd = Console.ReadLine();
+
+            switch (cmd)
+            {
+                case "a":
+                    coding.Date = GetDateInput();
+                    break;
+                case "b":
+                    coding.Duration = GetDurationInput();
+                    break;
+                case "s":
+                    updating = false;
+                    break;
+                case "0":
+                    updating = false;
+                    MainMenu();
+                    break;
+                default:
+                    Console.WriteLine("Invalid option.");
+                    break;
+            }
+        }
 
         int rowsAffected = codingController.Update(coding);
 
