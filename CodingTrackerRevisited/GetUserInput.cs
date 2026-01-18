@@ -9,14 +9,14 @@ internal class GetUserInput
     {
         bool closeApp = false;
 
-        while (closeApp == false)
+        while (!closeApp)
         {
             Console.WriteLine("\nMAIN MENU");
             Console.WriteLine("\nType 0 to close the app");
             Console.WriteLine("Type 1 to view records");
             Console.WriteLine("Type 2 to add records");
             Console.WriteLine("Type 3 to delete records");
-            Console.WriteLine("Type 4 to update records");
+            Console.WriteLine("Type 4 to update records\n");
 
             string commandInput = Console.ReadLine();
 
@@ -32,15 +32,15 @@ internal class GetUserInput
                     closeApp = true;
                     Environment.Exit(0);
                     break;
-                //case "1":
-                //    codingController.Get();
-                //    break;
+                case "1":
+                    codingController.Get();
+                    break;
                 case "2":
                     ProcessAdd();
                     break;
-                //case "3":
-                //    ProcessDelete();
-                //    break;
+                case "3":
+                    ProcessDelete();
+                    break;
                 //case "4":
                 //    ProcessUpdate();
                 //    break;
@@ -48,9 +48,37 @@ internal class GetUserInput
                     Console.WriteLine("Invalid command. Type a num from 0 to 4.");
                     break;
             }
-                
-
         }
+    }
+
+    private void ProcessDelete()
+    {
+        codingController.Get();
+
+        Console.WriteLine("Please type the id of the record you want to delete (or 0 to return to Main Menu)");
+        string commandInput = Console.ReadLine();
+
+        // NumberStyles.None no permite empty, white leading o numeros negativos
+        while (!Int32.TryParse(commandInput, NumberStyles.None, CultureInfo.InvariantCulture, out _))
+        {
+            Console.WriteLine("Invalid input. Try again.");
+            commandInput = Console.ReadLine();
+        }
+
+        int id = Int32.Parse(commandInput);
+
+        if (id == 0) MainMenu();
+
+        var coding = codingController.GetById(id);
+
+        if (coding.Id == 0)
+        {
+            Console.WriteLine($"There's no record with Id: {id}. Try again.");
+            ProcessDelete();
+            return;
+        }
+
+        codingController.Delete(id);
 
     }
 
@@ -88,10 +116,7 @@ internal class GetUserInput
         Console.WriteLine("Enter a date. Format (dd-mm-yy). Type 0 to go back to main menu");
         string dateInput = Console.ReadLine();
 
-        if (dateInput == "0")
-        {
-            MainMenu();
-        }
+        if (dateInput == "0") MainMenu();
 
         while (!DateTime.TryParseExact(dateInput,"dd-MM-yy",CultureInfo.InvariantCulture,DateTimeStyles.None, out _)) 
         {

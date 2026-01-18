@@ -7,6 +7,7 @@ namespace CodingTrackerRevisited
     internal class CodingController
     {
         string connectionString = ConfigurationManager.AppSettings.Get("ConnectionString");
+
         internal void Post(CodingRecord newCodingRecord)
         {
             using var connection = new SqliteConnection(connectionString);
@@ -25,7 +26,7 @@ namespace CodingTrackerRevisited
 
         internal void Get()
         {
-            List<CodingRecord> tableData = new List<CodingRecord>();
+            List<CodingRecord> tableData = new();
 
             using var connection = new SqliteConnection(connectionString);
             connection.Open();
@@ -46,22 +47,51 @@ namespace CodingTrackerRevisited
             }
 
             if (tableData.Count == 0)
-            {
                 Console.WriteLine("No rows found");
-            }
             else
-            {
                 TableVisualisation.ShowTable(tableData);
-                foreach (var cr in tableData)
-                {
-                    Console.WriteLine($"Id:{cr.Id} - Date: {cr.Date} - Duration: {cr.Duration}");
-                }
+        }
+
+        internal CodingRecord GetById(int id)
+        {
+            using var connection = new SqliteConnection(connectionString);
+
+            connection.Open();
+            var tableCmd = connection.CreateCommand();
+
+            tableCmd.CommandText = "SELECT * FROM coding WHERE Id = @Id";
+
+            tableCmd.Parameters.AddWithValue("@Id", id);
+
+            var reader = tableCmd.ExecuteReader();
+
+            CodingRecord record = new();
+
+            if (reader.Read())
+            {
+                record.Id = reader.GetInt32(0);
+                record.Date = reader.GetString(1);
+                record.Duration = reader.GetString(2);
             }
 
+            Console.WriteLine("\n\n");
 
+            return record;
+        }
 
+        internal void Delete(int id)
+        {
+            using var connection = new SqliteConnection(connectionString);
 
+            connection.Open();
+            var tableCmd = connection.CreateCommand();
+            tableCmd.CommandText = "DELETE FROM coding WHERE Id = @Id";
 
+            tableCmd.Parameters.AddWithValue("@Id", id);
+
+            tableCmd.ExecuteNonQuery();
+
+            Console.WriteLine($"Record with id:{id} was deleted!");
         }
     }
 }
