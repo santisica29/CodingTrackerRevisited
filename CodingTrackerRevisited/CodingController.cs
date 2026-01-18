@@ -13,15 +13,19 @@ namespace CodingTrackerRevisited
             using var connection = new SqliteConnection(connectionString);
             connection.Open();
 
-            var tableCmd = connection.CreateCommand();
+            using var tableCmd = connection.CreateCommand();
 
             tableCmd.CommandText = "INSERT INTO coding (date, duration) VALUES (@Date, @Duration)";
 
             tableCmd.Parameters.Add("@Date", SqliteType.Text).Value = newCodingRecord.Date;
             tableCmd.Parameters.Add("@Duration", SqliteType.Text).Value = newCodingRecord.Duration;
 
-            tableCmd.ExecuteNonQuery();
-            Console.WriteLine("Coding record added successfully!");
+            int rowsAffected = tableCmd.ExecuteNonQuery();
+
+            if (rowsAffected > 0)
+                Console.WriteLine("Coding record added successfully!");
+            else
+                Console.WriteLine("Record couldn't be added.");
         }
 
         internal void Get()
@@ -57,13 +61,13 @@ namespace CodingTrackerRevisited
             using var connection = new SqliteConnection(connectionString);
 
             connection.Open();
-            var tableCmd = connection.CreateCommand();
+            using var tableCmd = connection.CreateCommand();
 
             tableCmd.CommandText = "SELECT * FROM coding WHERE Id = @Id";
 
             tableCmd.Parameters.Add("@Id", SqliteType.Integer).Value = id;
 
-            var reader = tableCmd.ExecuteReader();
+            using var reader = tableCmd.ExecuteReader();
 
             CodingRecord record = new();
 
@@ -84,7 +88,7 @@ namespace CodingTrackerRevisited
             using var connection = new SqliteConnection(connectionString);
 
             connection.Open();
-            var tableCmd = connection.CreateCommand();
+            using var tableCmd = connection.CreateCommand();
             tableCmd.CommandText = "DELETE FROM coding WHERE Id = @Id";
 
             tableCmd.Parameters.Add("@Id", SqliteType.Integer).Value = id;
