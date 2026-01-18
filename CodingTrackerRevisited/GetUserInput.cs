@@ -41,14 +41,54 @@ internal class GetUserInput
                 case "3":
                     ProcessDelete();
                     break;
-                //case "4":
-                //    ProcessUpdate();
-                //    break;
+                case "4":
+                    ProcessUpdate();
+                    break;
                 default:
                     Console.WriteLine("Invalid command. Type a num from 0 to 4.");
                     break;
             }
         }
+    }
+
+    private void ProcessUpdate()
+    {
+        codingController.Get();
+
+        Console.WriteLine("Please type the id of the record you want to update (or 0 to return to Main Menu)");
+        string commandInput = Console.ReadLine();
+
+        while (!Int32.TryParse(commandInput,NumberStyles.None, CultureInfo.InvariantCulture, out _))
+        {
+            Console.WriteLine("Invalid input. Try again.");
+            commandInput = Console.ReadLine();
+        }
+
+        int id = Int32.Parse(commandInput);
+
+        if (id == 0) MainMenu();
+
+        var coding = codingController.GetById(id);
+
+        if (coding == null)
+        {
+            Console.WriteLine($"There's no record with Id: {id}. Try again.");
+            ProcessUpdate();
+            return;
+        }
+
+        string newDate = GetDateInput();
+        string newDuration = GetDurationInput();
+
+        coding.Date = newDate;
+        coding.Duration = newDuration;
+
+        int rowsAffected = codingController.Update(coding);
+
+        if (rowsAffected > 0)
+            Console.WriteLine($"Record with id {id} was successfully updated.");
+        else
+            Console.WriteLine($"No record found with id {id}.");
     }
 
     private void ProcessDelete()
@@ -71,14 +111,19 @@ internal class GetUserInput
 
         var coding = codingController.GetById(id);
 
-        if (coding.Id == 0)
+        if (coding == null)
         {
             Console.WriteLine($"There's no record with Id: {id}. Try again.");
             ProcessDelete();
             return;
         }
 
-        codingController.Delete(id);
+        int rowsAffected = codingController.Delete(id);
+
+        if (rowsAffected > 0)
+            Console.WriteLine($"Record with id {id} was successfully deleted.");
+        else
+            Console.WriteLine($"No record found with id {id}.");
 
     }
 
