@@ -17,8 +17,8 @@ namespace CodingTrackerRevisited
 
             tableCmd.CommandText = "INSERT INTO coding (date, duration) VALUES (@Date, @Duration)";
 
-            tableCmd.Parameters.AddWithValue("@Date", newCodingRecord.Date);
-            tableCmd.Parameters.AddWithValue("@Duration", newCodingRecord.Duration);
+            tableCmd.Parameters.Add("@Date", SqliteType.Text).Value = newCodingRecord.Date;
+            tableCmd.Parameters.Add("@Duration", SqliteType.Text).Value = newCodingRecord.Duration;
 
             tableCmd.ExecuteNonQuery();
             Console.WriteLine("Coding record added successfully!");
@@ -61,7 +61,7 @@ namespace CodingTrackerRevisited
 
             tableCmd.CommandText = "SELECT * FROM coding WHERE Id = @Id";
 
-            tableCmd.Parameters.AddWithValue("@Id", id);
+            tableCmd.Parameters.Add("@Id", SqliteType.Integer).Value = id;
 
             var reader = tableCmd.ExecuteReader();
 
@@ -87,11 +87,14 @@ namespace CodingTrackerRevisited
             var tableCmd = connection.CreateCommand();
             tableCmd.CommandText = "DELETE FROM coding WHERE Id = @Id";
 
-            tableCmd.Parameters.AddWithValue("@Id", id);
+            tableCmd.Parameters.Add("@Id", SqliteType.Integer).Value = id;
 
-            tableCmd.ExecuteNonQuery();
+            int rowsAffected = tableCmd.ExecuteNonQuery();
 
-            Console.WriteLine($"Record with id:{id} was deleted!");
+            if (rowsAffected > 0) 
+                Console.WriteLine($"Record with id {id} was successfully deleted.");
+            else
+                Console.WriteLine($"No record found with id {id}.");
         }
     }
 }
