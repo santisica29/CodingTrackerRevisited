@@ -107,7 +107,7 @@ internal class GetUserInput
 
         CodingRecord cr = new CodingRecord
         {
-            Date = DateTime.Now.ToString("dd-mm-yy"),
+            Date = DateTime.Now.ToString("yyyy-MM-dd"),
             StartTime = startTime,
             EndTime = endTime,
             Duration = GetDuration(startTime, endTime),
@@ -271,8 +271,8 @@ internal class GetUserInput
     private string GetDuration(string startTime, string endTime)
     {
         var duration = TimeSpan.Parse(endTime).Subtract(TimeSpan.Parse(startTime));
-        var durationFormatted = duration.ToString("hh\\:mm");
-        return durationFormatted;
+        
+        return duration.ToString("hh\\:mm");
     }
 
     private bool IsEndBeforeStart(string startTime, string endTime)
@@ -298,7 +298,7 @@ internal class GetUserInput
             new TextPrompt<string>($"Enter the {msg}. Format [green](hh:mm)[/]. Type 0 to go back to main menu")
                 .Validate(input =>
                 {
-                    if (!TimeSpan.TryParseExact(input, "hh\\:mm", CultureInfo.InvariantCulture, out _))
+                    if (!TimeSpan.TryParseExact(input, "hh\\:mm", CultureInfo.CurrentCulture, out _))
                         return ValidationResult.Error("Invalid date. Try again, format (hh:mm)");
                     else
                         return ValidationResult.Success();
@@ -312,17 +312,25 @@ internal class GetUserInput
     private string GetDateInput()
     {
         var dateInput = AnsiConsole.Prompt(
-            new TextPrompt<string>("Enter a date. Format [green](dd-mm-yy)[/]. Type 0 to go back to main menu")
+            new TextPrompt<string>("Enter a date. Format [green](dd-MM-yy)[/]. Type 't' to enter today's date. Type 0 to go back to main menu")
                 .Validate(input =>
                 {
-                    if (!DateTime.TryParseExact(input, "dd-MM-yy", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
-                        return ValidationResult.Error("Invalid date. Try again, format (dd-mm-yy)");
-                    else
+                    if (input.Trim().Equals("t"))
                         return ValidationResult.Success();
+
+                    if (!DateTime.TryParseExact(input, "dd-MM-yy", CultureInfo.CurrentCulture, DateTimeStyles.None, out _))
+                        return ValidationResult.Error("Invalid date. Try again, format (dd-MM-yy)");
+                    
+                    return ValidationResult.Success();
                 }));
 
         if (dateInput == "0") MainMenu();
 
-        return dateInput;
+        if (dateInput == "t")
+            dateInput = DateTime.Now.ToString();
+
+        var finalDate = DateTime.Parse(dateInput).ToString("yyyy-MM-dd");
+
+        return finalDate;
     }
 }
