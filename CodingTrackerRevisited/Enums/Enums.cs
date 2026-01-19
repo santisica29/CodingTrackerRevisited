@@ -15,6 +15,8 @@ public static class Enums
         DeleteRecords,
         [Description("Update Records")]
         UpdateRecords,
+        [Description("Start Record")]
+        StartRecord,
         [Description("Exit")]
         Exit
     }

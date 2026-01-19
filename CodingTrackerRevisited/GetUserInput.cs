@@ -1,5 +1,6 @@
 ﻿
 using Spectre.Console;
+using System.Diagnostics;
 using System.Globalization;
 using static CodingTrackerRevisited.Enums.Enums;
 
@@ -38,8 +39,86 @@ internal class GetUserInput
                 case MenuOptions.UpdateRecords:
                     ProcessUpdate();
                     break;
+                case MenuOptions.StartRecord:
+                    ProcessStartRecord();
+                    break;
             }
         }
+    }
+
+    private void ProcessStartRecord()
+    {
+        AnsiConsole.MarkupLine("Press any key to start the timer");
+        Console.ReadKey();
+
+        var sw = Stopwatch.StartNew();
+
+        var startTime = DateTime.Now.ToString("hh:mm");
+        string endTime = String.Empty;
+
+        bool timeIsRunning = true;
+
+        while (timeIsRunning)
+        {
+            var choice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+            .AddChoices("Pause", "Resume", "Stop and save", "Restart", "Go back")
+            );
+
+            switch (choice)
+            {
+                case "Pause":
+                    sw.Stop();
+                    break;
+                case "Resume":
+                    sw.Start();
+                    break;
+                case "Stop and save":
+                    sw.Stop();
+                    endTime = DateTime.Now.ToString("hh:mm");
+                    timeIsRunning = false;
+                    break;
+                case "Restart":
+                    sw.Restart();
+                    break;
+                case "Go back":
+                    return;
+            }
+        }
+
+        var time = sw.Elapsed;
+
+        string elapsedTime = time.ToString("hh\\:mm\\:ss");
+
+        AnsiConsole.MarkupLine($"Your session: {elapsedTime}");
+
+        var command = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+            .Title("Are you sure you want to save this session?")
+            .AddChoices("yes", "no")
+            );
+
+        if (command == "no")
+        {
+            AnsiConsole.MarkupLine("Your session won't be saved. Press any key to go back to the main menu");
+            Console.ReadLine();
+            return;
+        }
+
+        CodingRecord cr = new CodingRecord
+        {
+            Date = DateTime.Now.ToString("dd-mm-yy"),
+            StartTime = startTime,
+            EndTime = endTime,
+            Duration = GetDuration(startTime, endTime),
+        };
+
+        int rowsAffected = codingController.Post(cr);
+
+        if (rowsAffected > 0)
+            AnsiConsole.MarkupLine("[green]Coding record added successfully![/]");
+        else
+            AnsiConsole.MarkupLine("Record couldn't be added.");
     }
 
     private void ProcessUpdate()
@@ -192,8 +271,8 @@ internal class GetUserInput
     private string GetDuration(string startTime, string endTime)
     {
         var duration = TimeSpan.Parse(endTime).Subtract(TimeSpan.Parse(startTime));
-
-        return duration.ToString();
+        var durationFormatted = duration.ToString("hh\\:mm");
+        return durationFormatted;
     }
 
     private bool IsEndBeforeStart(string startTime, string endTime)
@@ -219,8 +298,8 @@ internal class GetUserInput
             new TextPrompt<string>($"Enter the {msg}. Format [green](hh:mm)[/]. Type 0 to go back to main menu")
                 .Validate(input =>
                 {
-                    if (!TimeSpan.TryParseExact(input, "h\\:mm", CultureInfo.InvariantCulture, out _))
-                        return ValidationResult.Error("Invalid date. Try again, format (dd-mm-yy)");
+                    if (!TimeSpan.TryParseExact(input, "hh\\:mm", CultureInfo.InvariantCulture, out _))
+                        return ValidationResult.Error("Invalid date. Try again, format (hh:mm)");
                     else
                         return ValidationResult.Success();
                 }));
