@@ -46,14 +46,15 @@ internal class GetUserInput
     {
         codingController.Get();
 
-        string commandInput = AnsiConsole.Ask<string>
-            ("Please type the id of the record you want to update (or 0 to return to Main Menu)");
-
-        while (!Int32.TryParse(commandInput,NumberStyles.None, CultureInfo.InvariantCulture, out _))
-        {
-            commandInput = AnsiConsole.Ask<string>
-            ("Invalid input. Try again.");
-        }
+        string commandInput = AnsiConsole.Prompt(
+            new TextPrompt<string>("Please type the id of the record you want to update (or 0 to return to Main Menu)")
+            .Validate(input =>
+            {
+                if (!Int32.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out _))
+                    return ValidationResult.Error("Invalid input");
+                else
+                    return ValidationResult.Success();
+            }));
 
         int id = Int32.Parse(commandInput);
 
@@ -104,22 +105,22 @@ internal class GetUserInput
         if (rowsAffected > 0)
             AnsiConsole.MarkupLine($"Record with id {id} was successfully updated.");
         else
-            AnsiConsole.MarkupLine($"No record found with id {id}.");
+            AnsiConsole.MarkupLine($"[red]No record found with id {id}.[/]");
     }
 
     private void ProcessDelete()
     {
         codingController.Get();
 
-        Console.WriteLine("Please type the id of the record you want to delete (or 0 to return to Main Menu)");
-        string commandInput = Console.ReadLine();
-
-        // NumberStyles.None no permite empty, white leading o numeros negativos
-        while (!Int32.TryParse(commandInput, NumberStyles.None, CultureInfo.InvariantCulture, out _))
-        {
-            Console.WriteLine("Invalid input. Try again.");
-            commandInput = Console.ReadLine();
-        }
+        string commandInput = AnsiConsole.Prompt(
+            new TextPrompt<string>("Please type the id of the record you want to delete (or 0 to return to Main Menu)")
+            .Validate(input =>
+            {
+                if (!Int32.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out _))
+                    return ValidationResult.Error("Invalid input");
+                else
+                    return ValidationResult.Success();
+            }));
 
         int id = Int32.Parse(commandInput);
 
@@ -129,7 +130,7 @@ internal class GetUserInput
 
         if (coding == null)
         {
-            Console.WriteLine($"There's no record with Id: {id}. Try again.");
+            AnsiConsole.MarkupLine($"[red]There's no record with Id: {id}. Try again.[/]");
             ProcessDelete();
             return;
         }
@@ -137,9 +138,9 @@ internal class GetUserInput
         int rowsAffected = codingController.Delete(id);
 
         if (rowsAffected > 0)
-            Console.WriteLine($"Record with id {id} was successfully deleted.");
+            AnsiConsole.MarkupLine($"[#5FFFD7]Record with id {id} was successfully deleted.[/]");
         else
-            Console.WriteLine($"No record found with id {id}.");
+            AnsiConsole.MarkupLine($"[red]No record found with id {id}.[/]");
     }
 
     private void ProcessAdd()
