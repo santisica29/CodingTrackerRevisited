@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.Data.Sqlite;
+using Spectre.Console;
 using System.Configuration;
 
 namespace CodingTrackerRevisited
@@ -8,7 +9,7 @@ namespace CodingTrackerRevisited
     {
         string connectionString = ConfigurationManager.AppSettings.Get("ConnectionString");
 
-        internal void Post(CodingRecord newCodingRecord)
+        internal int Post(CodingRecord newCodingRecord)
         {
             using var connection = new SqliteConnection(connectionString);
             connection.Open();
@@ -20,15 +21,10 @@ namespace CodingTrackerRevisited
             tableCmd.Parameters.Add("@Date", SqliteType.Text).Value = newCodingRecord.Date;
             tableCmd.Parameters.Add("@Duration", SqliteType.Text).Value = newCodingRecord.Duration;
 
-            int rowsAffected = tableCmd.ExecuteNonQuery();
-
-            if (rowsAffected > 0)
-                Console.WriteLine("Coding record added successfully!");
-            else
-                Console.WriteLine("Record couldn't be added.");
+            return tableCmd.ExecuteNonQuery();   
         }
 
-        internal void Get()
+        internal List<CodingRecord> Get()
         {
             List<CodingRecord> tableData = new();
 
@@ -50,10 +46,7 @@ namespace CodingTrackerRevisited
                 });
             }
 
-            if (tableData.Count == 0)
-                Console.WriteLine("No rows found");
-            else
-                TableVisualisation.ShowTable(tableData);
+            return tableData;
         }
 
         internal CodingRecord? GetById(int id)

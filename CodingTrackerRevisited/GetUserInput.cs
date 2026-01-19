@@ -27,7 +27,7 @@ internal class GetUserInput
                     Environment.Exit(0);
                     break;
                 case MenuOptions.ViewRecords:
-                    codingController.Get();
+                    ProcessGet();
                     break;
                 case MenuOptions.InsertRecords:
                     ProcessAdd();
@@ -148,12 +148,28 @@ internal class GetUserInput
         string date = GetDateInput();
         string duration = GetDurationInput();
 
-        CodingRecord newCodingRecord = new();
+        CodingRecord newCodingRecord = new()
+        {
+            Date = date,
+            Duration = duration
+        };
 
-        newCodingRecord.Date = date;
-        newCodingRecord.Duration = duration;
+        int rowsAffected = codingController.Post(newCodingRecord);
 
-        codingController.Post(newCodingRecord);
+        if (rowsAffected > 0)
+            AnsiConsole.MarkupLine("[green]Coding record added successfully![/]");
+        else
+            AnsiConsole.MarkupLine("Record couldn't be added.");
+    }
+
+    private void ProcessGet()
+    {
+        var list = codingController.Get();
+
+        if (list.Count == 0)
+            AnsiConsole.MarkupLine("[DarkRed]No rows found[/]");
+        else
+            TableVisualisation.ShowTable(list);
     }
 
     private string GetDurationInput()
