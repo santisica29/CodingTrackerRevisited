@@ -1,5 +1,7 @@
 ﻿
+using Spectre.Console;
 using System.Globalization;
+using static CodingTrackerRevisited.Enums.Enums;
 
 namespace CodingTrackerRevisited;
 internal class GetUserInput
@@ -11,43 +13,49 @@ internal class GetUserInput
 
         while (!closeApp)
         {
-            Console.WriteLine("\nMAIN MENU");
-            Console.WriteLine("\nType 0 to close the app");
-            Console.WriteLine("Type 1 to view records");
-            Console.WriteLine("Type 2 to add records");
-            Console.WriteLine("Type 3 to delete records");
-            Console.WriteLine("Type 4 to update records\n");
+            var commandInput = AnsiConsole.Prompt(
+                new SelectionPrompt<MenuOptions>()
+                .Title("Select an option")
+                .UseConverter<MenuOptions>(x => ToDescriptionString(x))
+                .AddChoices(Enum.GetValues<MenuOptions>())
+                );
+            //Console.WriteLine("\nMAIN MENU");
+            //Console.WriteLine("\nType 0 to close the app");
+            //Console.WriteLine("Type 1 to view records");
+            //Console.WriteLine("Type 2 to add records");
+            //Console.WriteLine("Type 3 to delete records");
+            //Console.WriteLine("Type 4 to update records\n");
 
-            string commandInput = Console.ReadLine();
+            //string commandInput = Console.ReadLine();
 
-            while (string.IsNullOrWhiteSpace(commandInput))
-            {
-                Console.WriteLine("Invalid option.");
-                commandInput = Console.ReadLine();
-            } 
+            //while (string.IsNullOrWhiteSpace(commandInput))
+            //{
+            //    AnsiConsole.MarkupLine("Invalid option.");
+            //    commandInput = Console.ReadLine();
+            //} 
 
-            switch (commandInput)
-            {
-                case "0":
-                    closeApp = true;
-                    Environment.Exit(0);
-                    break;
-                case "1":
-                    codingController.Get();
-                    break;
-                case "2":
-                    ProcessAdd();
-                    break;
-                case "3":
-                    ProcessDelete();
-                    break;
-                case "4":
-                    ProcessUpdate();
-                    break;
-                default:
-                    Console.WriteLine("Invalid command. Type a num from 0 to 4.");
-                    break;
-            }
+            //switch (commandInput)
+            //{
+            //    case "0":
+            //        closeApp = true;
+            //        Environment.Exit(0);
+            //        break;
+            //    case "1":
+            //        codingController.Get();
+            //        break;
+            //    case "2":
+            //        ProcessAdd();
+            //        break;
+            //    case "3":
+            //        ProcessDelete();
+            //        break;
+            //    case "4":
+            //        ProcessUpdate();
+            //        break;
+            //    default:
+            //        Console.WriteLine("Invalid command. Type a num from 0 to 4.");
+            //        break;
+            //}
         }
     }
 
