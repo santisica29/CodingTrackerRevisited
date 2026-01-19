@@ -44,7 +44,9 @@ internal class GetUserInput
 
     private void ProcessUpdate()
     {
-        codingController.Get();
+        AnsiConsole.Clear();
+
+        ProcessGet();
 
         string commandInput = AnsiConsole.Prompt(
             new TextPrompt<string>("Please type the id of the record you want to update (or 0 to return to Main Menu)")
@@ -65,6 +67,7 @@ internal class GetUserInput
         if (coding == null)
         {
             AnsiConsole.MarkupLine($"There's no record with Id: {id}. Try again.");
+            Console.ReadLine();
             ProcessUpdate();
             return;
         }
@@ -110,7 +113,9 @@ internal class GetUserInput
 
     private void ProcessDelete()
     {
-        codingController.Get();
+        AnsiConsole.Clear();
+
+        ProcessGet();
 
         string commandInput = AnsiConsole.Prompt(
             new TextPrompt<string>("Please type the id of the record you want to delete (or 0 to return to Main Menu)")
@@ -145,6 +150,8 @@ internal class GetUserInput
 
     private void ProcessAdd()
     {
+        AnsiConsole.Clear();
+
         string date = GetDateInput();
         string duration = GetDurationInput();
 
@@ -164,6 +171,8 @@ internal class GetUserInput
 
     private void ProcessGet()
     {
+        AnsiConsole.Clear();
+
         var list = codingController.Get();
 
         if (list.Count == 0)

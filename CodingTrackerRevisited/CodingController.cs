@@ -39,24 +39,12 @@ namespace CodingTrackerRevisited
         {
             using var connection = new SqliteConnection(connectionString);
 
-            connection.Open();
-            using var tableCmd = connection.CreateCommand();
+            var sql = "SELECT * FROM coding WHERE Id = @Id";
 
-            tableCmd.CommandText = "SELECT * FROM coding WHERE Id = @Id";
+            // OrDefault when null is a possibility
+            var record = connection.QuerySingleOrDefault<CodingRecord>(sql, new { Id = id });
 
-            tableCmd.Parameters.Add("@Id", SqliteType.Integer).Value = id;
-
-            using var reader = tableCmd.ExecuteReader();
-
-            if (!reader.Read())
-                return null;
-
-            return new CodingRecord
-            {
-                Id = reader.GetInt32(0),
-                Date = reader.GetString(1),
-                Duration = reader.GetString(2)
-            };
+            return record;
         }
 
         internal int Delete(int id)
