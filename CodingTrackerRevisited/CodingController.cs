@@ -12,16 +12,10 @@ namespace CodingTrackerRevisited
         internal int Post(CodingRecord newCodingRecord)
         {
             using var connection = new SqliteConnection(connectionString);
-            connection.Open();
+            
+            var sql = "INSERT INTO coding (date, duration) VALUES (@Date, @Duration)";
 
-            using var tableCmd = connection.CreateCommand();
-
-            tableCmd.CommandText = "INSERT INTO coding (date, duration) VALUES (@Date, @Duration)";
-
-            tableCmd.Parameters.Add("@Date", SqliteType.Text).Value = newCodingRecord.Date;
-            tableCmd.Parameters.Add("@Duration", SqliteType.Text).Value = newCodingRecord.Duration;
-
-            return tableCmd.ExecuteNonQuery();   
+            return connection.Execute(sql, new {Date = newCodingRecord.Date, Duration = newCodingRecord.Duration});   
         }
 
         internal List<CodingRecord> Get()
@@ -51,28 +45,18 @@ namespace CodingTrackerRevisited
         {
             using var connection = new SqliteConnection(connectionString);
 
-            connection.Open();
-            using var tableCmd = connection.CreateCommand();
-            tableCmd.CommandText = "DELETE FROM coding WHERE Id = @Id";
+            var sql = "DELETE FROM coding WHERE Id = @Id";
 
-            tableCmd.Parameters.Add("@Id", SqliteType.Integer).Value = id;
-
-            return tableCmd.ExecuteNonQuery();
+            return connection.Execute(sql, new { Id = id});
         }
 
         internal int Update(CodingRecord cr)
         {
             using var connection = new SqliteConnection(connectionString);
-            connection.Open();
 
-            using var tableCmd = connection.CreateCommand();
-            tableCmd.CommandText = "UPDATE coding SET Date = @Date, Duration = @Duration WHERE Id = @Id";
+            var sql = "UPDATE coding SET Date = @Date, Duration = @Duration WHERE Id = @Id";
 
-            tableCmd.Parameters.Add("@Date", SqliteType.Text).Value = cr.Date;
-            tableCmd.Parameters.Add("@Duration", SqliteType.Text).Value = cr.Duration;
-            tableCmd.Parameters.Add("@Id", SqliteType.Integer).Value = cr.Id;
-
-            return tableCmd.ExecuteNonQuery();
+            return connection.Execute(sql, new { Date = cr.Date, Duration = cr.Duration, Id = cr.Id });
         }
     }
 }
