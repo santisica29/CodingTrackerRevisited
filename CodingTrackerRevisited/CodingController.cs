@@ -12,10 +12,16 @@ namespace CodingTrackerRevisited
         internal int Post(CodingRecord newCodingRecord)
         {
             using var connection = new SqliteConnection(connectionString);
-            
-            var sql = "INSERT INTO coding (date, duration) VALUES (@Date, @Duration)";
 
-            return connection.Execute(sql, new {Date = newCodingRecord.Date, Duration = newCodingRecord.Duration});   
+            var sql = "INSERT INTO coding (Date, StartTime, EndTime, Duration) VALUES (@Date, @StartTime, @EndTime, @Duration)";
+
+            return connection.Execute(sql, new
+            {
+                Date = newCodingRecord.Date,
+                StartTime = newCodingRecord.StartTime,
+                EndTime = newCodingRecord.EndTime,
+                Duration = newCodingRecord.Duration
+            });
         }
 
         internal List<CodingRecord> Get()
@@ -47,16 +53,25 @@ namespace CodingTrackerRevisited
 
             var sql = "DELETE FROM coding WHERE Id = @Id";
 
-            return connection.Execute(sql, new { Id = id});
+            return connection.Execute(sql, new { Id = id });
         }
 
         internal int Update(CodingRecord cr)
         {
             using var connection = new SqliteConnection(connectionString);
 
-            var sql = "UPDATE coding SET Date = @Date, Duration = @Duration WHERE Id = @Id";
+            var sql = @"UPDATE coding
+                SET Date = @Date, StartTime = @StartTime, EndTime = @EndTime, Duration = @Duration 
+                WHERE Id = @Id";
 
-            return connection.Execute(sql, new { Date = cr.Date, Duration = cr.Duration, Id = cr.Id });
+            return connection.Execute(sql, new
+            {
+                Date = cr.Date,
+                StartTime = cr.StartTime,
+                EndTime = cr.EndTime,
+                Duration = cr.Duration,
+                Id = cr.Id
+            });
         }
     }
 }

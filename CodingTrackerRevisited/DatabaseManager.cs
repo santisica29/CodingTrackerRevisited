@@ -14,6 +14,8 @@ internal class DatabaseManager
                 @"CREATE TABLE IF NOT EXISTS coding (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     Date TEXT,
+                    StartTime TEXT,
+                    EndTime TEXT,
                     Duration TEXT
                 )";
 

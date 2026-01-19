@@ -66,7 +66,7 @@ internal class GetUserInput
 
         if (coding == null)
         {
-            AnsiConsole.MarkupLine($"There's no record with Id: {id}. Try again.");
+            AnsiConsole.MarkupLine($"[red]There's no record with Id: {id}. Try again.[/]");
             Console.ReadLine();
             ProcessUpdate();
             return;
@@ -79,7 +79,7 @@ internal class GetUserInput
             var cmd = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .Title("Choose which property you want to update.")
-                .AddChoices("Date", "Duration","Stop updating", "Back to Main Menu")
+                .AddChoices("Date", "Start Time", "End Time", "Stop updating", "Back to Main Menu")
                 );
 
             switch (cmd)
@@ -87,10 +87,19 @@ internal class GetUserInput
                 case "Date":
                     coding.Date = GetDateInput();
                     break;
-                case "Duration":
-                    coding.Duration = GetDurationInput();
+                case "Start Time":
+                    coding.StartTime = GetTimeInput("start time");
+                    break;
+                case "End Time":
+                    coding.EndTime = GetTimeInput("end time");
+                    while (IsEndBeforeStart(coding.StartTime, coding.EndTime))
+                    {
+                        AnsiConsole.MarkupLine($"[red]Invalid input. Please make sure the end time is later than the start time{coding.StartTime}\r\n\r\n[/]");
+                        coding.EndTime = GetTimeInput("end time");
+                    }
                     break;
                 case "Stop updating":
+                    coding.Duration = GetDuration(coding.StartTime, coding.EndTime);
                     updating = false;
                     break;
                 case "Back to Main Menu":
@@ -153,11 +162,22 @@ internal class GetUserInput
         AnsiConsole.Clear();
 
         string date = GetDateInput();
-        string duration = GetDurationInput();
+        string startTime = GetTimeInput("start time");
+        string endTime = GetTimeInput("end time");
+
+        while (IsEndBeforeStart(startTime, endTime))
+        {
+            AnsiConsole.MarkupLine("End time must be higher than start time");
+            endTime = GetTimeInput("end time");
+        }
+
+        string duration = GetDuration(startTime, endTime);
 
         CodingRecord newCodingRecord = new()
         {
             Date = date,
+            StartTime = startTime,
+            EndTime = endTime,
             Duration = duration
         };
 
@@ -167,6 +187,18 @@ internal class GetUserInput
             AnsiConsole.MarkupLine("[green]Coding record added successfully![/]");
         else
             AnsiConsole.MarkupLine("Record couldn't be added.");
+    }
+
+    private string GetDuration(string startTime, string endTime)
+    {
+        var duration = TimeSpan.Parse(endTime).Subtract(TimeSpan.Parse(startTime));
+
+        return duration.ToString();
+    }
+
+    private bool IsEndBeforeStart(string startTime, string endTime)
+    {
+        return TimeSpan.Parse(endTime) < TimeSpan.Parse(startTime);
     }
 
     private void ProcessGet()
@@ -181,10 +213,10 @@ internal class GetUserInput
             TableVisualisation.ShowTable(list);
     }
 
-    private string GetDurationInput()
+    private string GetTimeInput(string msg)
     {
-        var durationInput = AnsiConsole.Prompt(
-            new TextPrompt<string>("Enter the duration. Format [green](hh:mm)[/]. Type 0 to go back to main menu")
+        var timeInput = AnsiConsole.Prompt(
+            new TextPrompt<string>($"Enter the {msg}. Format [green](hh:mm)[/]. Type 0 to go back to main menu")
                 .Validate(input =>
                 {
                     if (!TimeSpan.TryParseExact(input, "h\\:mm", CultureInfo.InvariantCulture, out _))
@@ -193,9 +225,9 @@ internal class GetUserInput
                         return ValidationResult.Success();
                 }));
 
-        if (durationInput == "0") MainMenu();
+        if (timeInput == "0") MainMenu();
 
-        return durationInput;
+        return timeInput;
     }
 
     private string GetDateInput()
