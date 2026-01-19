@@ -15,7 +15,7 @@ internal class GetUserInput
         {
             var commandInput = AnsiConsole.Prompt(
                 new SelectionPrompt<MenuOptions>()
-                .Title("Select an option")
+                .Title("[blue]MAIN MENU[/]")
                 .UseConverter<MenuOptions>(x => ToDescriptionString(x))
                 .AddChoices(Enum.GetValues<MenuOptions>())
                 );

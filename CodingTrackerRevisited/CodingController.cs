@@ -1,6 +1,6 @@
 ﻿
 using Microsoft.Data.Sqlite;
-using Spectre.Console;
+using Dapper;
 using System.Configuration;
 
 namespace CodingTrackerRevisited
@@ -26,27 +26,13 @@ namespace CodingTrackerRevisited
 
         internal List<CodingRecord> Get()
         {
-            List<CodingRecord> tableData = new();
-
             using var connection = new SqliteConnection(connectionString);
-            connection.Open();
 
-            using var tableCmd = connection.CreateCommand();
-            tableCmd.CommandText = "SELECT * FROM coding";
+            var sql = "SELECT * FROM coding";
 
-            using var reader = tableCmd.ExecuteReader();
+            var list = connection.Query<CodingRecord>(sql).ToList();
 
-            while (reader.Read())
-            {
-                tableData.Add(new CodingRecord
-                {
-                    Id = reader.GetInt32(0),
-                    Date = reader.GetString(1),
-                    Duration = reader.GetString(2)
-                });
-            }
-
-            return tableData;
+            return list;
         }
 
         internal CodingRecord? GetById(int id)
