@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Data.Sqlite;
+using System.Text;
 
 namespace CodingTrackerRevisited;
 internal class DatabaseManager
@@ -21,3 +22,5 @@ internal class DatabaseManager
         connection.Execute(sql);
     }
 }
+
+//select* from coding where Date > date('now', '-1 month')

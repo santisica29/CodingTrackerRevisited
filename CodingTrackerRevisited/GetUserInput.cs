@@ -327,10 +327,9 @@ internal class GetUserInput
         if (dateInput == "0") MainMenu();
 
         if (dateInput == "t")
-            dateInput = DateTime.Now.ToString();
+            return DateTime.Now.ToString("yyyy-MM-dd");
 
-        var finalDate = DateTime.Parse(dateInput).ToString("yyyy-MM-dd");
-
-        return finalDate;
+        //Parse the string to datetime using the "current format" not the one i want to show, for that i use toString afterwards
+        return DateTime.ParseExact(dateInput, "dd-MM-yy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd");
     }
 }
