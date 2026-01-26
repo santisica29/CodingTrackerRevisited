@@ -29,9 +29,16 @@ internal class CodingController
 
         var sql = "SELECT * FROM coding";
 
-        var list = connection.Query<CodingRecord>(sql).ToList();
+        return connection.Query<CodingRecord>(sql).ToList();
+    }
 
-        return list;
+    internal List<CodingRecord> GetFilteredList(string timeCondition, string durationCondition)
+    {
+        using var connection = new SqliteConnection(connectionString);
+
+        var sql = $"SELECT * FROM coding WHERE Date > date('now', 'start of month', '-{durationCondition} {timeCondition}')";
+
+        return connection.Query<CodingRecord>(sql).ToList();
     }
 
     internal CodingRecord? GetById(int id)
@@ -41,9 +48,7 @@ internal class CodingController
         var sql = "SELECT * FROM coding WHERE Id = @Id";
 
         // OrDefault when null is a possibility
-        var record = connection.QuerySingleOrDefault<CodingRecord>(sql, new { Id = id });
-
-        return record;
+        return connection.QuerySingleOrDefault<CodingRecord>(sql, new { Id = id });
     }
 
     internal int Delete(int id)
