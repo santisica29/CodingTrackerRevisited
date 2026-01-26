@@ -32,11 +32,11 @@ internal class CodingController
         return connection.Query<CodingRecord>(sql).ToList();
     }
 
-    internal List<CodingRecord> GetFilteredList(string timeCondition, string durationCondition)
+    internal List<CodingRecord> GetFilteredList(string timeCondition, int durationCondition)
     {
         using var connection = new SqliteConnection(connectionString);
 
-        var sql = $"SELECT * FROM coding WHERE Date > date('now', 'start of month', '-{durationCondition} {timeCondition}')";
+        var sql = $"SELECT * FROM coding WHERE Date > date('now', '-{durationCondition.ToString()} {timeCondition}')";
 
         return connection.Query<CodingRecord>(sql).ToList();
     }

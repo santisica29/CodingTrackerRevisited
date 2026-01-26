@@ -1,8 +1,11 @@
-﻿using CodingTrackerRevisited.Models;
+﻿using CodingTrackerRevisited.Controllers;
+using CodingTrackerRevisited.Models;
 using Spectre.Console;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using static CodingTrackerRevisited.Enums.Enums;
+using static CodingTrackerRevisited.Validation.Validation;
 
 namespace CodingTrackerRevisited.Views;
 internal class GetUserInput
@@ -42,8 +45,35 @@ internal class GetUserInput
                 case MenuOptions.StartRecord:
                     ProcessStartRecord();
                     break;
+                case MenuOptions.ViewFilteredRecords:
+                    ProcessViewFilteredRecords();
+                    break;
             }
         }
+    }
+
+    private void ProcessViewFilteredRecords()
+    {
+        var timeChoice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+            .Title("Select your filtered time condition")
+            .AddChoices("days", "months", "years"));
+
+        var durationChoice = AnsiConsole.Ask<int>("Select the duration. (Can't be a negative number)");
+
+        while (durationChoice <= 0)
+        {
+            AnsiConsole.MarkupLine("[red]Invalid option[/]");
+
+            durationChoice = AnsiConsole.Ask<int>("Select the duration. (Can't be a negative number)");
+        }
+
+        var filteredList = codingController.GetFilteredList(timeChoice, durationChoice);
+
+        if (filteredList.Count == 0)
+            AnsiConsole.MarkupLine("[DarkRed]No rows found[/]");
+        else
+            TableVisualisation.ShowTable(filteredList, $"{durationChoice} {timeChoice}");
     }
 
     private void ProcessStartRecord()
@@ -92,13 +122,7 @@ internal class GetUserInput
 
         AnsiConsole.MarkupLine($"Your session: {elapsedTime}");
 
-        var command = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-            .Title("Are you sure you want to save this session?")
-            .AddChoices("yes", "no")
-            );
-
-        if (command == "no")
+        if (!AnsiConsole.Confirm("Are you sure you want to save this session?"))
         {
             AnsiConsole.MarkupLine("Your session won't be saved. Press any key to go back to the main menu");
             Console.ReadLine();
@@ -244,6 +268,9 @@ internal class GetUserInput
         string startTime = GetTimeInput("start time");
         string endTime = GetTimeInput("end time");
 
+        if (date == "0" || startTime == "0" || endTime == "0")
+            return;
+
         while (IsEndBeforeStart(startTime, endTime))
         {
             AnsiConsole.MarkupLine("End time must be higher than start time");
@@ -268,18 +295,6 @@ internal class GetUserInput
             AnsiConsole.MarkupLine("Record couldn't be added.");
     }
 
-    private string GetDuration(string startTime, string endTime)
-    {
-        var duration = TimeSpan.Parse(endTime).Subtract(TimeSpan.Parse(startTime));
-        
-        return duration.ToString("hh\\:mm");
-    }
-
-    private bool IsEndBeforeStart(string startTime, string endTime)
-    {
-        return TimeSpan.Parse(endTime) < TimeSpan.Parse(startTime);
-    }
-
     private void ProcessGet()
     {
         AnsiConsole.Clear();
@@ -290,46 +305,5 @@ internal class GetUserInput
             AnsiConsole.MarkupLine("[DarkRed]No rows found[/]");
         else
             TableVisualisation.ShowTable(list);
-    }
-
-    private string GetTimeInput(string msg)
-    {
-        var timeInput = AnsiConsole.Prompt(
-            new TextPrompt<string>($"Enter the {msg}. Format [green](hh:mm)[/]. Type 0 to go back to main menu")
-                .Validate(input =>
-                {
-                    if (!TimeSpan.TryParseExact(input, "hh\\:mm", CultureInfo.CurrentCulture, out _))
-                        return ValidationResult.Error("Invalid date. Try again, format (hh:mm)");
-                    else
-                        return ValidationResult.Success();
-                }));
-
-        if (timeInput == "0") MainMenu();
-
-        return timeInput;
-    }
-
-    private string GetDateInput()
-    {
-        var dateInput = AnsiConsole.Prompt(
-            new TextPrompt<string>("Enter a date. Format [green](dd-MM-yy)[/]. Type 't' to enter today's date. Type 0 to go back to main menu")
-                .Validate(input =>
-                {
-                    if (input.Trim().Equals("t"))
-                        return ValidationResult.Success();
-
-                    if (!DateTime.TryParseExact(input, "dd-MM-yy", CultureInfo.CurrentCulture, DateTimeStyles.None, out _))
-                        return ValidationResult.Error("Invalid date. Try again, format (dd-MM-yy)");
-                    
-                    return ValidationResult.Success();
-                }));
-
-        if (dateInput == "0") MainMenu();
-
-        if (dateInput == "t")
-            return DateTime.Now.ToString("yyyy-MM-dd");
-
-        //Parse the string to datetime using the "current format" not the one i want to show, for that i use toString afterwards
-        return DateTime.ParseExact(dateInput, "dd-MM-yy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd");
     }
 }

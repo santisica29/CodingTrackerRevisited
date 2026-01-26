@@ -17,6 +17,8 @@ public static class Enums
         UpdateRecords,
         [Description("Start Record")]
         StartRecord,
+        [Description("View Filtered Records")]
+        ViewFilteredRecords,
         [Description("Exit")]
         Exit
     }
