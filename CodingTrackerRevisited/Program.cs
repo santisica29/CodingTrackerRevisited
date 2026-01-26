@@ -1,4 +1,6 @@
-﻿using System.Configuration;
+﻿using CodingTrackerRevisited.Services;
+using CodingTrackerRevisited.Views;
+using System.Configuration;
 
 namespace CodingTrackerRevisited;
 internal class Program

@@ -1,10 +1,10 @@
-﻿
+﻿using CodingTrackerRevisited.Models;
 using Spectre.Console;
 using System.Diagnostics;
 using System.Globalization;
 using static CodingTrackerRevisited.Enums.Enums;
 
-namespace CodingTrackerRevisited;
+namespace CodingTrackerRevisited.Views;
 internal class GetUserInput
 {
     CodingController codingController = new();
@@ -17,7 +17,7 @@ internal class GetUserInput
             var commandInput = AnsiConsole.Prompt(
                 new SelectionPrompt<MenuOptions>()
                 .Title("[blue]MAIN MENU[/]")
-                .UseConverter<MenuOptions>(x => ToDescriptionString(x))
+                .UseConverter(x => ToDescriptionString(x))
                 .AddChoices(Enum.GetValues<MenuOptions>())
                 );
 
@@ -54,7 +54,7 @@ internal class GetUserInput
         var sw = Stopwatch.StartNew();
 
         var startTime = DateTime.Now.ToString("hh:mm");
-        string endTime = String.Empty;
+        string endTime = string.Empty;
 
         bool timeIsRunning = true;
 
@@ -131,13 +131,13 @@ internal class GetUserInput
             new TextPrompt<string>("Please type the id of the record you want to update (or 0 to return to Main Menu)")
             .Validate(input =>
             {
-                if (!Int32.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out _))
+                if (!int.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out _))
                     return ValidationResult.Error("Invalid input");
                 else
                     return ValidationResult.Success();
             }));
 
-        int id = Int32.Parse(commandInput);
+        int id = int.Parse(commandInput);
 
         if (id == 0) MainMenu();
 
@@ -209,13 +209,13 @@ internal class GetUserInput
             new TextPrompt<string>("Please type the id of the record you want to delete (or 0 to return to Main Menu)")
             .Validate(input =>
             {
-                if (!Int32.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out _))
+                if (!int.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out _))
                     return ValidationResult.Error("Invalid input");
                 else
                     return ValidationResult.Success();
             }));
 
-        int id = Int32.Parse(commandInput);
+        int id = int.Parse(commandInput);
 
         if (id == 0) MainMenu();
 

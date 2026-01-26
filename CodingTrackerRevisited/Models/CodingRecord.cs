@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace CodingTrackerRevisited;
+namespace CodingTrackerRevisited.Models;
 internal class CodingRecord
 {
     public int Id { get; set; }

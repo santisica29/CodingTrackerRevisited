@@ -2,7 +2,7 @@
 using Microsoft.Data.Sqlite;
 using System.Text;
 
-namespace CodingTrackerRevisited;
+namespace CodingTrackerRevisited.Services;
 internal class DatabaseManager
 {
     internal void CreateTable(string connectionString)

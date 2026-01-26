@@ -1,6 +1,6 @@
 ﻿using ConsoleTableExt;
 
-namespace CodingTrackerRevisited;
+namespace CodingTrackerRevisited.Views;
 internal class TableVisualisation
 {
     internal static void ShowTable<T>(List<T> tableData) where T : class
