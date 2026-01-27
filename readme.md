@@ -23,7 +23,7 @@ and Spectre.Console for the UI
 - SQLite database connection
 	- The program uses a SQLite db connection to store and read information.
     - If no database exists, or the correct table does not exist they will be created on program start.
-- Spectre.Console for the UI, user can anvihgate by key presses.
+- Spectre.Console for the UI, user can navigate by key presses.
 - CRUD DB functions
 	- Users can Create, Read, Update or Delete coding sessions. 
 	- Users can Read data from specific dates.
